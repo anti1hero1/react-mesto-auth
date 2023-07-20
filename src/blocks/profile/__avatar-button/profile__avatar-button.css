@@ -1,0 +1,26 @@
+.profile__avatar-button {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    background-image: url(../../../images/svg/pencil.svg);
+    background-size: cover;
+    background-position: center;
+    background-color: black;
+    background-repeat: no-repeat;
+    position: absolute;
+    opacity: 0;
+    border: 0;
+}
+
+.profile__avatar-button:hover {
+    background-size: 26px 26px;
+    opacity: 0.8;
+    transition: opacity 0.5s linear;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 920px) {
+    .profile__avatar-button {
+        align-self: self-start;
+    }
+}

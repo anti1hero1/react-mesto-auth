@@ -1,0 +1,24 @@
+.popup__title {
+    margin: 0;
+    color: black;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 24px;
+    line-height: 29px;
+    padding: 0;
+    padding-top: 34px;
+    padding-left: 36px;
+    padding-right: 36px;
+    text-align: center;
+
+}
+
+@media screen and (max-width: 920px) {
+    .popup__title {
+        font-size: 18px;
+        line-height: 22px;
+        padding-top: 25px;
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+}

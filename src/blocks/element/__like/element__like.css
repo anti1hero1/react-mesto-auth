@@ -1,0 +1,15 @@
+.element__like {
+    max-width: 22px;
+    width: 100%;
+    min-height: 19px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    transition: opacity 1s linear;
+    cursor: pointer;
+    margin-right: 5px;
+    background: center no-repeat url(../../../images/svg/heart_empty.svg);
+}
+.element__like:hover {
+  opacity: 0.6;
+}

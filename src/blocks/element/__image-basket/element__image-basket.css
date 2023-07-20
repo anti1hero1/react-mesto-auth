@@ -1,0 +1,19 @@
+.element__image-basket {
+    background-image: url(../../../images/svg/Trash.svg);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 18px;
+    height: 19px;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 0;
+    border: none;
+    transition: opacity 1s linear;
+
+}
+.element__image-basket:hover {
+  opacity: 0.6;
+}

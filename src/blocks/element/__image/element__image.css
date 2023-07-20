@@ -1,0 +1,8 @@
+.element__image {
+  width: 282px;
+  height: 282px;
+  padding: 0;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
