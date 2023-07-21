@@ -3,7 +3,7 @@ import React from "react";
 import PopupWithForm from "./PopupWithForm";
 import useFormValidation from "../utils/useFormValidation";
 
-function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
+function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, isLoading }) {
   const input = React.useRef();
   const { reset, values, errors, isValid, isInputValid, handleChange } =
     useFormValidation();
@@ -20,6 +20,7 @@ function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
 
   return (
     <PopupWithForm
+      buttonText={isLoading ? "Сохранение..." : "Сохранить"}
       name="avatar"
       title="Обновить автар"
       isOpen={isOpen}

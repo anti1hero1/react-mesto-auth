@@ -39,6 +39,10 @@ function App() {
   const [isInfoTolltipSuccess, setIsInfoTolltipSuccess] = React.useState(false);
   const navigate = useNavigate();
 
+const [headerEmail, setHeaderEmail] = React.useState("");
+
+const [isLoading, setIsLoading] = React.useState(false);
+
   function handleEditAvatarClick() {
     setAvatarPopupOpen(true);
   }
@@ -104,7 +108,9 @@ function App() {
         closeAllPopups();
         reset();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
+    setIsLoading(true);
   }
 
   function handleUpdateAvatar(user, reset) {
@@ -115,7 +121,9 @@ function App() {
         closeAllPopups();
         reset();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
+    setIsLoading(true);
   }
 
   function handleAddPlaceSubmit(card, reset) {
@@ -126,7 +134,9 @@ function App() {
         closeAllPopups();
         reset();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setIsLoading(false));
+    setIsLoading(true);
   }
 
   const handleLike = React.useCallback(
@@ -170,41 +180,40 @@ function App() {
         setIsInfoTolltipSuccess(false); // fail
         console.log(err);
       })
-      .finally(() => setIsInfoTooltipPopup(true)); // в любом случае открываем попап
+      .finally(() => setIsInfoTooltipPopup(true)); 
   }
 
-  function checkToken() {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      apiAuth
-        .checkToken(token)
-        .then((res) => {
-          if (res && res.data) {
-            setLoggedIn(true);
-            setCurrentUser({ ...currentUser, email: res.data.email });
-            navigate("/");
-          }
-        })
-        .catch((err) => console.log(err));
-    }
+React.useEffect(() => {
+  const token = localStorage.getItem("jwt");
+  if (token) {
+    apiAuth
+      .checkToken(token)
+      .then((res) => {
+        if (res && res.data) {
+          setLoggedIn(true);
+          setHeaderEmail(res.data.email);
+          navigate("/");
+        }
+      })
+      .catch((err) => console.log(err));
   }
-  React.useEffect(() => {
-    checkToken();
-  }, []);
+}, [navigate]);
+
+  
 
   function handleLogin(data) {
     apiAuth
       .login(data)
       .then((res) => {
         if (res && res.token) {
-          setCurrentUser({ ...currentUser, email: data.email });
+          setHeaderEmail(data.email);
           localStorage.setItem("jwt", res.token);
-          checkToken();
+          navigate("/");
         }
       })
       .catch((err) => {
-        setIsInfoTolltipSuccess(false); // fail
-        setIsInfoTooltipPopup(true); // в любом случае открываем попап
+        setIsInfoTolltipSuccess(false);
+        setIsInfoTooltipPopup(true); 
         console.log(err);
       });
   }
@@ -212,12 +221,13 @@ function App() {
   function logOut() {
     setLoggedIn(false);
     localStorage.removeItem("jwt");
+    setHeaderEmail("");
   }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header loggedIn={loggedIn} email={currentUser.email} logOut={logOut} />
+        <Header loggedIn={loggedIn} email={headerEmail} logOut={logOut} />
 
         <Routes>
           <Route
@@ -250,21 +260,24 @@ function App() {
           onUpdateUser={handleUpdateUser}
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
+          isLoading={isLoading}
         />
         <EditAvatarPopup
           onUpdateAvatar={handleUpdateAvatar}
           onClose={closeAllPopups}
           isOpen={isEditAvatarPopupOpen}
+          isLoading={isLoading}
         />
         <AddPlacePopup
           onClose={closeAllPopups}
           isOpen={isAddPlacePopupOpen}
           onAddPlace={handleAddPlaceSubmit}
+          isLoading={isLoading}
         />
         <PopupWithForm
           name="delete"
           title="Вы уверены?"
-          buttonSave="Да"
+          buttonText={"Да"}
           isOpen={isDeletePopupOpen}
           onClose={closeAllPopups}
           onSubmit={handleDeleteSubmit}></PopupWithForm>
