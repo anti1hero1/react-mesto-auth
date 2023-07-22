@@ -36,8 +36,8 @@ function Login(props) {
             name="password"
             value={password}
             placeholder="Введите Ваш пароль"
-            minLength={8}
-            maxLength={50}
+            minLength={3}
+            maxLength={10}
             onChange={handleChangePassword}
             required
           />

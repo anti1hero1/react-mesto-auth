@@ -28,7 +28,7 @@ function App() {
   const [isDeletePopupOpen, setDeletePopupOpen] = React.useState(false);
   const [isImagePopup, setImagePopup] = React.useState(false);
   const [isInfoTooltipPopup, setIsInfoTooltipPopup] = React.useState(false);
-  
+
   const [selectedCard, setSelectedCard] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [deleteCardId, setDeleteCardId] = React.useState("");
@@ -36,12 +36,51 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
 
   const [loggedIn, setLoggedIn] = React.useState(false);
-  const [isInfoTolltipSuccess, setIsInfoTolltipSuccess] = React.useState(false);
+  const [isInfoTooltipSuccess, setIsInfoTooltipSuccess] = React.useState(false);
+  // const [checkToken, setCheckToken] = React.useState(false);
+  const [headerEmail, setHeaderEmail] = React.useState("");
+
+  const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
 
-const [headerEmail, setHeaderEmail] = React.useState("");
+  // React.useEffect(() => {
+  //   const token = localStorage.getItem("jwt");
+  //   if (token) {
+  //     // setCheckToken(true);
+  //     apiAuth
+  //       .checkToken(token)
+  //       .then((res) => {
+  //         if (res && res.data) {
+  //           setLoggedIn(true);
+  //           navigate("/");
+  //           setHeaderEmail(res.data.email);
+  //         }
+  //       })
+  //       .catch((err) => console.log(err));
+  //   } else {
+  //     setLoggedIn(false);
+  //   }
+  // }, [navigate]);
 
-const [isLoading, setIsLoading] = React.useState(false);
+  // React.useEffect(() => {
+  //   checkToken();
+  // }, [navigate]);
+
+  // React.useEffect(() => {
+  //   checkToken();
+  // }, []);
+
+  React.useEffect(() => {
+    checkToken()
+    if (loggedIn) {
+      Promise.all([api.getUserInfo(), api.getCards()])
+        .then(([user, cards]) => {
+          setCurrentUser({ ...currentUser, ...user });
+          setCards(cards);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [loggedIn,navigate]);
 
   function handleEditAvatarClick() {
     setAvatarPopupOpen(true);
@@ -73,17 +112,6 @@ const [isLoading, setIsLoading] = React.useState(false);
     setDeletePopupOpen(false);
     setIsInfoTooltipPopup(false);
   }
-
-  React.useEffect(() => {
-    if (loggedIn) {
-      Promise.all([api.getUserInfo(), api.getCards()])
-        .then(([user, cards]) => {
-          setCurrentUser({ ...currentUser, ...user });
-          setCards(cards);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [loggedIn]);
 
   function handleDeleteSubmit(evt) {
     evt.preventDefault();
@@ -172,48 +200,48 @@ const [isLoading, setIsLoading] = React.useState(false);
       .register(data)
       .then((res) => {
         if (res && res.data) {
-          setIsInfoTolltipSuccess(true);
+          setIsInfoTooltipSuccess(true);
           navigate("/sign-in");
         }
       })
       .catch((err) => {
-        setIsInfoTolltipSuccess(false); // fail
+        setIsInfoTooltipSuccess(false);
         console.log(err);
       })
-      .finally(() => setIsInfoTooltipPopup(true)); 
+      .finally(() => setIsInfoTooltipPopup(true));
   }
 
-React.useEffect(() => {
-  const token = localStorage.getItem("jwt");
-  if (token) {
-    apiAuth
-      .checkToken(token)
-      .then((res) => {
-        if (res && res.data) {
-          setLoggedIn(true);
-          setHeaderEmail(res.data.email);
-          navigate("/");
-        }
-      })
-      .catch((err) => console.log(err));
+  function checkToken() {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      apiAuth
+        .checkToken(token)
+        .then((res) => {
+          if (res && res.data) {
+            setLoggedIn(true);
+            navigate("/");
+            setHeaderEmail(res.data.email);
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setLoggedIn(false);
+    }
   }
-}, [navigate]);
-
-  
 
   function handleLogin(data) {
     apiAuth
       .login(data)
       .then((res) => {
         if (res && res.token) {
-          setHeaderEmail(data.email);
           localStorage.setItem("jwt", res.token);
           navigate("/");
+          setHeaderEmail(data.email);
         }
       })
       .catch((err) => {
-        setIsInfoTolltipSuccess(false);
-        setIsInfoTooltipPopup(true); 
+        setIsInfoTooltipSuccess(false);
+        setIsInfoTooltipPopup(true);
         console.log(err);
       });
   }
@@ -231,14 +259,10 @@ React.useEffect(() => {
 
         <Routes>
           <Route
-            path="/sign-up"
-            element={<Register onRegister={handleRegister} />}
-          />
-          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
-          <Route
             path="/"
             element={
               <ProtectedRoute
+                // checkToken={checkToken}
                 loggedIn={loggedIn}
                 element={Main}
                 onEditAvatar={handleEditAvatarClick}
@@ -251,6 +275,11 @@ React.useEffect(() => {
               />
             }
           />
+          <Route
+            path="/sign-up"
+            element={<Register onRegister={handleRegister} />}
+          />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
           <Route
             path="*"
             element={<Navigate to={loggedIn ? "/" : "/sign-in"} />}
@@ -290,7 +319,7 @@ React.useEffect(() => {
           name="tooltip"
           isOpen={isInfoTooltipPopup}
           onClose={closeAllPopups}
-          isSuccess={isInfoTolltipSuccess}
+          isSuccess={isInfoTooltipSuccess}
         />
         {loggedIn && <Footer />}
       </div>

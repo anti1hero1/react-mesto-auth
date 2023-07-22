@@ -37,8 +37,8 @@ function Register(props) {
             name="password"
             value={password}
             placeholder="Придумайте пароль"
-            minLength={8}
-            maxLength={50}
+            minLength={3}
+            maxLength={10}
             onChange={handleChangePassword}
             required
           />
