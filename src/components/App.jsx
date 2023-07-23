@@ -43,31 +43,31 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      apiAuth
-        .checkToken(token)
-        .then((res) => {
-          if (res) {
-            setLoggedIn(true);
-            navigate("/");
-            setHeaderEmail(res.data.email);
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      setLoggedIn(false);
-    }
-  }, [navigate]);
+  // React.useEffect(() => {
+  //   const token = localStorage.getItem("jwt");
+  //   if (token) {
+  //     apiAuth
+  //       .checkToken(token)
+  //       .then((res) => {
+  //         if (res && res.data) {
+  //           setLoggedIn(true);
+  //           navigate("/");
+  //           setHeaderEmail(res.data.email);
+  //         }
+  //       })
+  //       .catch((err) => console.log(err));
+  //   } else {
+  //     setLoggedIn(false);
+  //   }
+  // }, []);
 
   // React.useEffect(() => {
   //   checkToken();
   // }, [navigate]);
 
-  // React.useEffect(() => {
-  //   checkToken();
-  // }, []);
+  React.useEffect(() => {
+    checkToken();
+  }, []);
 
   React.useEffect(() => {
     // checkToken()
@@ -98,23 +98,23 @@ function App() {
       .finally(() => setIsInfoTooltipPopup(true));
   }
 
-  // function checkToken() {
-  //   const token = localStorage.getItem("jwt");
-  //   if (token) {
-  //     apiAuth
-  //       .checkToken(token)
-  //       .then((res) => {
-  //         if (res && res.data) {
-  //           setLoggedIn(true);
-  //           navigate("/");
-  //           setHeaderEmail(res.data.email);
-  //         }
-  //       })
-  //       .catch((err) => console.log(err));
-  //   } else {
-  //     setLoggedIn(false);
-  //   }
-  // }
+  function checkToken() {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      apiAuth
+        .checkToken(token)
+        .then((res) => {
+          if (res && res.data) {
+            setLoggedIn(true);
+            navigate("/");
+            setHeaderEmail(res.data.email);
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setLoggedIn(false);
+    }
+  }
 
   function handleLogin(data) {
     apiAuth
@@ -124,6 +124,7 @@ function App() {
           localStorage.setItem("jwt", res.token);
           navigate("/");
           setHeaderEmail(data.email);
+          setLoggedIn(true);
         }
       })
       .catch((err) => {
