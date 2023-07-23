@@ -21,6 +21,6 @@
 * Create React App
 * JSX
 
-*Добавлена регистрация пользователя
+* Добавлена регистрация пользователя
 
 * [Проект на GitHub](https://github.com/anti1hero1/react-mesto-auth)
