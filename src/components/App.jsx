@@ -43,10 +43,64 @@ function App() {
   const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      apiAuth
+        .checkToken(token)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            navigate("/");
+            setHeaderEmail(res.data.email);
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setLoggedIn(false);
+    }
+  }, [navigate]);
+
   // React.useEffect(() => {
+  //   checkToken();
+  // }, [navigate]);
+
+  // React.useEffect(() => {
+  //   checkToken();
+  // }, []);
+
+  React.useEffect(() => {
+    // checkToken()
+    if (loggedIn) {
+      Promise.all([api.getUserInfo(), api.getCards()])
+        .then(([user, cards]) => {
+          setCurrentUser({ ...currentUser, ...user });
+          setCards(cards);
+          // setCheckToken(true);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [loggedIn]);
+
+  function handleRegister(data) {
+    apiAuth
+      .register(data)
+      .then((res) => {
+        if (res && res.data) {
+          setIsInfoTooltipSuccess(true);
+          navigate("/sign-in");
+        }
+      })
+      .catch((err) => {
+        setIsInfoTooltipSuccess(false);
+        console.log(err);
+      })
+      .finally(() => setIsInfoTooltipPopup(true));
+  }
+
+  // function checkToken() {
   //   const token = localStorage.getItem("jwt");
   //   if (token) {
-  //     // setCheckToken(true);
   //     apiAuth
   //       .checkToken(token)
   //       .then((res) => {
@@ -60,27 +114,30 @@ function App() {
   //   } else {
   //     setLoggedIn(false);
   //   }
-  // }, [navigate]);
+  // }
 
-  // React.useEffect(() => {
-  //   checkToken();
-  // }, [navigate]);
+  function handleLogin(data) {
+    apiAuth
+      .login(data)
+      .then((res) => {
+        if (res && res.token) {
+          localStorage.setItem("jwt", res.token);
+          navigate("/");
+          setHeaderEmail(data.email);
+        }
+      })
+      .catch((err) => {
+        setIsInfoTooltipSuccess(false);
+        setIsInfoTooltipPopup(true);
+        console.log(err);
+      });
+  }
 
-  // React.useEffect(() => {
-  //   checkToken();
-  // }, []);
-
-  React.useEffect(() => {
-    checkToken()
-    if (loggedIn) {
-      Promise.all([api.getUserInfo(), api.getCards()])
-        .then(([user, cards]) => {
-          setCurrentUser({ ...currentUser, ...user });
-          setCards(cards);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [loggedIn,navigate]);
+  function logOut() {
+    setLoggedIn(false);
+    localStorage.removeItem("jwt");
+    setHeaderEmail("");
+  }
 
   function handleEditAvatarClick() {
     setAvatarPopupOpen(true);
@@ -195,69 +252,21 @@ function App() {
     [currentUser._id]
   );
 
-  function handleRegister(data) {
-    apiAuth
-      .register(data)
-      .then((res) => {
-        if (res && res.data) {
-          setIsInfoTooltipSuccess(true);
-          navigate("/sign-in");
-        }
-      })
-      .catch((err) => {
-        setIsInfoTooltipSuccess(false);
-        console.log(err);
-      })
-      .finally(() => setIsInfoTooltipPopup(true));
-  }
-
-  function checkToken() {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      apiAuth
-        .checkToken(token)
-        .then((res) => {
-          if (res && res.data) {
-            setLoggedIn(true);
-            navigate("/");
-            setHeaderEmail(res.data.email);
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      setLoggedIn(false);
-    }
-  }
-
-  function handleLogin(data) {
-    apiAuth
-      .login(data)
-      .then((res) => {
-        if (res && res.token) {
-          localStorage.setItem("jwt", res.token);
-          navigate("/");
-          setHeaderEmail(data.email);
-        }
-      })
-      .catch((err) => {
-        setIsInfoTooltipSuccess(false);
-        setIsInfoTooltipPopup(true);
-        console.log(err);
-      });
-  }
-
-  function logOut() {
-    setLoggedIn(false);
-    localStorage.removeItem("jwt");
-    setHeaderEmail("");
-  }
-
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header loggedIn={loggedIn} email={headerEmail} logOut={logOut} />
 
         <Routes>
+          <Route
+            path="/sign-up"
+            element={<Register onRegister={handleRegister} />}
+          />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          <Route
+            path="*"
+            element={<Navigate to={loggedIn ? "/" : "/sign-in"} />}
+          />
           <Route
             path="/"
             element={
@@ -274,15 +283,6 @@ function App() {
                 onCardLike={handleLike}
               />
             }
-          />
-          <Route
-            path="/sign-up"
-            element={<Register onRegister={handleRegister} />}
-          />
-          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
-          <Route
-            path="*"
-            element={<Navigate to={loggedIn ? "/" : "/sign-in"} />}
           />
         </Routes>
         <EditProfilePopup
