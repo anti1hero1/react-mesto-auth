@@ -66,7 +66,22 @@ function App() {
   // }, [navigate]);
 
   React.useEffect(() => {
-    checkToken();
+    // checkToken();
+const token = localStorage.getItem("jwt");
+    if (token) {
+      apiAuth
+        .checkToken(token)
+        .then((res) => {
+          if (res && res.data) {
+            setLoggedIn(true);
+            navigate("/");
+            setHeaderEmail(res.data.email);
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setLoggedIn(false);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -98,23 +113,23 @@ function App() {
       .finally(() => setIsInfoTooltipPopup(true));
   }
 
-  function checkToken() {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      apiAuth
-        .checkToken(token)
-        .then((res) => {
-          if (res && res.data) {
-            setLoggedIn(true);
-            navigate("/");
-            setHeaderEmail(res.data.email);
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      setLoggedIn(false);
-    }
-  }
+  // function checkToken() {
+  //   const token = localStorage.getItem("jwt");
+  //   if (token) {
+  //     apiAuth
+  //       .checkToken(token)
+  //       .then((res) => {
+  //         if (res && res.data) {
+  //           setLoggedIn(true);
+  //           navigate("/");
+  //           setHeaderEmail(res.data.email);
+  //         }
+  //       })
+  //       .catch((err) => console.log(err));
+  //   } else {
+  //     setLoggedIn(false);
+  //   }
+  // }
 
   function handleLogin(data) {
     apiAuth
@@ -131,7 +146,7 @@ function App() {
         setIsInfoTooltipSuccess(false);
         setIsInfoTooltipPopup(true);
         console.log(err);
-      });
+      })
   }
 
   function logOut() {
